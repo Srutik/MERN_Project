@@ -22,7 +22,7 @@ app.set("view engine", "hbs");
 app.set("views", template_path);
 hbs.registerPartials(partials_path);
 
-console.log(process.env.SECRET_KEY);
+// console.log(process.env.SECRET_KEY);
 
 app.get("/", (req , res) => {
     res.render("home");
@@ -51,6 +51,13 @@ app.post("/register", async (req , res) => {
 
             const token = await registerEmployee.generateAuthToken();
             console.log("the token part : " + token);
+
+            res.cookie("jwt" , token , {
+                expires:new Date(Dsate.now() + 50000),
+                httpOnly:true
+            });
+
+            console.log(cookie);
 
             const registered = await registerEmployee.save();
             res.status(201).render("home");
