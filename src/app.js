@@ -39,9 +39,15 @@ app.get("/secret", auth, (req, res) => {
 app.get("/logout", auth, async (req, res) => {
     try {
 
-        req.user.tokens = req.user.tokens.filter((currentElement) => {
-            return currentElement.token != req.token
-        })
+
+        // For single logout.
+        // req.user.tokens = req.user.tokens.filter((currentElement) => {
+        //     return currentElement.token != req.token
+        // })
+
+        // logout from all devices.
+        req.user.tokens = [];
+        
         res.clearCookie("jwt");
         console.log("logout sucessfull");
 
@@ -76,18 +82,18 @@ app.post("/register", async (req, res) => {
             const token = await registerEmployee.generateAuthToken();
             console.log("the token part : " + token);
 
-            res.cookie("jwt", token, {
-                expires: new Date(Dsate.now() + 60000),
-                httpOnly: true
-            });
-
-            console.log(cookie);
+            // res.cookie("jwt", token , {
+            //     expires: new Date(Date.now() + 60000),
+            //     httpOnly: true,
+            //     // secure:true
+            // });
+            // console.log(cookie);
 
             const registered = await registerEmployee.save();
             res.status(201).render("home");
         }
         else {
-            res.send("Invalid password.")
+            res.send("Invalid password.");
         }
     } catch (error) {
         res.status(400).send(error);
@@ -103,17 +109,17 @@ app.post("/login", async (req, res) => {
         const email = req.body.email;
         const password = req.body.password;
 
-        const userEmail = await Register.findOne({ email: email });
+        const userEmail = await Register.findOne({ email:email });
 
         const isMatch = await bcrypt.compare(password, userEmail.password);
 
         const token = await userEmail.generateAuthToken();
-        console.log("the token part : " + token);
+        console.log("the token part : " + token);       
 
-        res.cookie("jwt", token, {
+        res.cookie("jwt", token , {
             expires: new Date(Date.now() + 60000),
             httpOnly: true,
-            // secure:true
+            secure:true
         });
 
         if (isMatch) {
